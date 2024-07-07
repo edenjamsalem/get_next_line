@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-char	*read_line_from_buff(t_list *line_buff, char *line)
+static char	*read_line_from_buf(t_list *line_buff, char *line)
 {
 	int		i;
 	char	*node_content;
@@ -40,20 +40,20 @@ char	*read_line_from_buff(t_list *line_buff, char *line)
 	return (NULL);
 }
 
-int	read_file_til_nl(int fd, t_list **line_buff)
+static int	read_file_til_nl(int fd, t_list **line_buff)
 {
 	int		bytes_read;
 	t_list	*new_node;
 
 	while (1)
 	{
-		new_node = ft_lstnew();
+		new_node = ft_lstnew_buf();
 		if (!new_node)
 			return (0);
 		bytes_read = read(fd, new_node->content, BUFFER_SIZE);
 		if (bytes_read <= 0)
 		{
-			ft_lstclear(&new_node, false);
+			ft_lstclear(&new_node);
 			if (bytes_read == -1)
 				return (0);
 			return (1);
@@ -65,15 +65,15 @@ int	read_file_til_nl(int fd, t_list **line_buff)
 	}
 }
 
-int	rem_prev_line_from_node(t_list **line_buff, char *next_chr)
+static int	rem_prev_line_from_node(t_list **line_buff, char *next_chr)
 {
 	t_list	*new_node;
 	int		i;
 
-	new_node = ft_lstnew();
+	new_node = ft_lstnew_buf();
 	if (!new_node)
 	{
-		ft_lstclear(line_buff, false);
+		ft_lstclear(line_buff);
 		return (0);
 	}
 	i = 0;
@@ -83,12 +83,12 @@ int	rem_prev_line_from_node(t_list **line_buff, char *next_chr)
 		next_chr++;
 	}
 	((char *)((*line_buff)->content))[i] = '\0';
-	ft_lstclear(line_buff, false);
+	ft_lstclear(line_buff);
 	*line_buff = new_node;
 	return (1);
 }
 
-char	*get_line(t_list **line_buff)
+static char	*get_line(t_list **line_buff)
 {
 	char	*line;
 	char	*next_chr;
@@ -98,18 +98,18 @@ char	*get_line(t_list **line_buff)
 	line = malloc(sizeof(char) * (get_line_len(*line_buff) + 1));
 	if (!line)
 	{
-		ft_lstclear(line_buff, false);
+		ft_lstclear(line_buff);
 		return (NULL);
 	}
-	next_chr = read_line_from_buff(*line_buff, line);
+	next_chr = read_line_from_buf(*line_buff, line);
 	if (!next_chr || !*next_chr)
 	{
-		ft_lstclear(line_buff, false);
+		ft_lstclear(line_buff);
 		*line_buff = NULL;
 	}
 	else
 	{
-		ft_lstclear(line_buff, true);
+		ft_lstclear_butlast(line_buff); // make this ft_lstclear_butlast()
 		if (!rem_prev_line_from_node(line_buff, next_chr))
 			return (NULL);
 	}
@@ -128,7 +128,7 @@ char	*get_next_line(int fd)
 		{
 			if (!read_file_til_nl(fd, &line_buff[fd]))
 			{
-				ft_lstclear(line_buff, false);
+				ft_lstclear(line_buff);
 				return (NULL);
 			}
 		}
@@ -137,7 +137,7 @@ char	*get_next_line(int fd)
 	{
 		if (!read_file_til_nl(fd, &line_buff[fd]))
 		{
-			ft_lstclear(line_buff, false);
+			ft_lstclear(line_buff);
 			return (NULL);
 		}
 	}

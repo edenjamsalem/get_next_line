@@ -1,20 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eamsalem <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/30 17:30:44 by eamsalem          #+#    #+#             */
-/*   Updated: 2024/05/02 16:30:16 by eamsalem         ###   ########.fr       */
+/*   Updated: 2024/05/03 17:53:22 by eamsalem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line_bonus.h"
-#include <stddef.h>
-#include <stdlib.h>
+#include "get_next_line.h"
 
-t_list	*ft_lstnew(void)
+t_list	*ft_lstnew_buf(void)
 {
 	t_list	*list;
 	int		i;
@@ -25,7 +23,7 @@ t_list	*ft_lstnew(void)
 	list->content = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!list->content)
 	{
-		ft_lstclear(&list, false);
+		ft_lstclear(&list);
 		return (NULL);
 	}
 	i = 0;
@@ -80,47 +78,17 @@ int	check_node_for_nl(t_list *line_buff)
 	return (0);
 }
 
-void	ft_lstclear(t_list **lst, bool keep_last_node)
+void	ft_lstclear_butlast(t_list **lst)
 {
 	t_list	*tmp;
 
 	if (!lst || !*lst)
 		return ;
-	if (keep_last_node)
+	while ((*lst)->next)
 	{
-		while ((*lst)->next)
-		{
-			tmp = (*lst)->next;
-			free((*lst)->content);
-			free(*lst);
-			*lst = tmp;
-		}
+		tmp = (*lst)->next;
+		free((*lst)->content);
+		free(*lst);
+		*lst = tmp;
 	}
-	else
-	{
-		while (*lst)
-		{
-			tmp = (*lst)->next;
-			free((*lst)->content);
-			free(*lst);
-			*lst = tmp;
-		}
-	}
-}
-
-void	ft_lstadd_back(t_list **lst, t_list *new)
-{
-	t_list	*temp;
-
-	if (!new)
-		return ;
-	if (!*lst)
-	{
-		*lst = new;
-		return ;
-	}
-	temp = *lst;
-	while (temp->next)
-		temp = temp->next;
-	temp->next = new;
 }
